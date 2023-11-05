@@ -28,20 +28,20 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const servicesCollection = client.db('shareFoodDB').collection('Services');
+        const availableFoodsCollection = client.db('shareFoodDB').collection('AvailableFoods');
 
 
         // to get all the service in a API
-        app.get('/services', async(req, res) => {
-            const cursor = servicesCollection.find();
+        app.get('/available_foods', async(req, res) => {
+            const cursor = availableFoodsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         } )
         // to get one single data from service API
-        app.get('/services/:id', async(req, res) => {
+        app.get('/available_foods/:id', async(req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id)}
-            const result = await servicesCollection.findOne(query);
+            const result = await availableFoodsCollection.findOne(query);
             res.send(result);
         })
 
