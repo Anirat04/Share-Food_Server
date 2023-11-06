@@ -46,6 +46,8 @@ async function run() {
             res.send(result);
         })
 
+
+        // request related
         // get some data of requested foods
         app.get('/foodRequests', async (req, res) => {
             console.log(req.query.email);
@@ -57,13 +59,18 @@ async function run() {
             res.send(result);
         })
 
-
-
         // post requested data to the database collection
         app.post('/foodRequests', async (req, res) => {
             const foodRequests = req.body;
             console.log(foodRequests);
             const result = await foodRequestsCollection.insertOne(foodRequests);
+            res.send(result);
+        })
+        // delete from requested data
+        app.delete('/foodRequests/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await foodRequestsCollection.deleteOne(query)
             res.send(result);
         })
 
