@@ -29,19 +29,41 @@ async function run() {
         await client.connect();
 
         const availableFoodsCollection = client.db('shareFoodDB').collection('AvailableFoods');
+        const foodRequestsCollection = client.db('shareFoodDB').collection('foodRequests');
 
 
         // to get all the service in a API
-        app.get('/available_foods', async(req, res) => {
+        app.get('/available_foods', async (req, res) => {
             const cursor = availableFoodsCollection.find();
             const result = await cursor.toArray();
             res.send(result);
-        } )
+        })
         // to get one single data from service API
-        app.get('/available_foods/:id', async(req, res) => {
+        app.get('/available_foods/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await availableFoodsCollection.findOne(query);
+            res.send(result);
+        })
+
+        // get some data of requested foods
+        app.get('/foodRequests', async (req, res) => {
+            console.log(req.query.email);
+            let query = {}
+            if (req.query?.User_email) {
+                query = { User_email: req.query.User_email }
+            }
+            const result = await foodRequestsCollection.find(query).toArray();
+            res.send(result);
+        })
+
+
+
+        // post requested data to the database collection
+        app.post('/foodRequests', async (req, res) => {
+            const foodRequests = req.body;
+            console.log(foodRequests);
+            const result = await foodRequestsCollection.insertOne(foodRequests);
             res.send(result);
         })
 
