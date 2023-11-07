@@ -45,6 +45,13 @@ async function run() {
             const result = await availableFoodsCollection.findOne(query);
             res.send(result);
         })
+        // post new available food from the Add Food route
+        app.post('/available_foods', async(req, res) => {
+            const addedData = req.body;
+            console.log(addedData)
+            const result = await availableFoodsCollection.insertOne(addedData);
+            res.send(result);
+        })
 
 
         // request related
