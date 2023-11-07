@@ -33,9 +33,18 @@ async function run() {
 
 
         // to get all the service in a API
+        // app.get('/available_foods', async (req, res) => {
+        //     const cursor = availableFoodsCollection.find();
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // })
         app.get('/available_foods', async (req, res) => {
-            const cursor = availableFoodsCollection.find();
-            const result = await cursor.toArray();
+            console.log(req.query.email);
+            let query = {}
+            if (req.query?.Donator_email) {
+                query = { Donator_email: req.query.Donator_email }
+            }
+            const result = await availableFoodsCollection.find(query).toArray();
             res.send(result);
         })
         // to get one single data from service API
@@ -51,6 +60,13 @@ async function run() {
             console.log(addedData)
             const result = await availableFoodsCollection.insertOne(addedData);
             res.send(result);
+        })
+        // delete one data from available foods collection \\ from React-Table in Manage My foods route
+        app.delete('/available_foods/:id', async (req, res) => {
+            id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const result = await availableFoodsCollection.deleteOne(query);
+            res.send(result)
         })
 
 
