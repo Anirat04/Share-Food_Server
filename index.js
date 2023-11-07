@@ -55,7 +55,7 @@ async function run() {
             res.send(result);
         })
         // post new available food from the Add Food route
-        app.post('/available_foods', async(req, res) => {
+        app.post('/available_foods', async (req, res) => {
             const addedData = req.body;
             console.log(addedData)
             const result = await availableFoodsCollection.insertOne(addedData);
@@ -64,8 +64,28 @@ async function run() {
         // delete one data from available foods collection \\ from React-Table in Manage My foods route
         app.delete('/available_foods/:id', async (req, res) => {
             id = req.params.id;
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await availableFoodsCollection.deleteOne(query);
+            res.send(result)
+        })
+        // for updating available foods from manage my food route edit button
+        app.patch('/available_foods/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+
+            const updatedData = req.body;
+            console.log(updatedData);
+            const updateDoc = {
+                $set: {
+                    Food_name: updatedData.Food_name,
+                    Food_img: updatedData.Food_img,
+                    Food_quantity: updatedData.Food_quantity,
+                    Pickup_location: updatedData.Pickup_location,
+                    Expired_date: updatedData.Expired_date,
+                    Additional_notes: updatedData.Additional_notes,
+                },
+            };
+            const result = await availableFoodsCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
 
@@ -92,7 +112,7 @@ async function run() {
         // delete from requested data
         app.delete('/foodRequests/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await foodRequestsCollection.deleteOne(query)
             res.send(result);
         })
