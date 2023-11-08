@@ -83,9 +83,26 @@ async function run() {
                     Pickup_location: updatedData.Pickup_location,
                     Expired_date: updatedData.Expired_date,
                     Additional_notes: updatedData.Additional_notes,
+                    Food_status: updatedData.Food_status
                 },
             };
             const result = await availableFoodsCollection.updateOne(filter, updateDoc);
+            res.send(result)
+        })
+
+
+        app.patch('/foodRequests/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { Food_id: id }
+
+            const updatedData = req.body;
+            console.log(updatedData);
+            const updateDoc = {
+                $set: {
+                    Food_status: updatedData.Food_status
+                },
+            };
+            const result = await foodRequestsCollection.updateOne(filter, updateDoc);
             res.send(result)
         })
 
@@ -95,9 +112,25 @@ async function run() {
         app.get('/foodRequests', async (req, res) => {
             console.log(req.query.email);
             let query = {}
-            if (req.query?.User_email) {
-                query = { User_email: req.query.User_email }
+            if (req.query.Requester_email) {
+                // If Food_name is provided, query using Food_name
+                query = {
+                    Requester_email: req.query.Requester_email
+                };
             }
+            else if (req.query.Food_id) {
+                // If Food_name is provided, query using Food_name
+                query = {
+                    Food_id: req.query.Food_id
+                };
+            }
+            const result = await foodRequestsCollection.find(query).toArray();
+            res.send(result);
+        })
+        // get data for single foods
+        app.get('/foodRequests/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { Food_id: id }
             const result = await foodRequestsCollection.find(query).toArray();
             res.send(result);
         })
@@ -119,7 +152,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
