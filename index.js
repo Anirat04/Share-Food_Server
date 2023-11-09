@@ -96,11 +96,12 @@ async function run() {
 
         app.patch('/foodRequests/:id', async (req, res) => {
             try {
+                const updatedData = req.body;
+                const FoodID = req.body._id;
                 const id = req.params.id;
-                const filter = { Food_id: id };
+                const filter = { _id: new ObjectId(FoodID) };
                 const query = { _id: new ObjectId(id) };
 
-                const updatedData = req.body;
                 console.log(updatedData);
                 const updateDoc = {
                     $set: {
