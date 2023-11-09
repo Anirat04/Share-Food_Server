@@ -40,11 +40,14 @@ async function run() {
         // })
         app.get('/available_foods', async (req, res) => {
             console.log(req.query.email);
-            let query = {}
+            const options = {
+                Food_status: 'Available'
+            };
+            let query = options
             if (req.query?.Donator_email) {
                 query = { Donator_email: req.query.Donator_email }
             }
-            const result = await availableFoodsCollection.find(query).toArray();
+            const result = await availableFoodsCollection.find(query, options).toArray();
             res.send(result);
         })
         // to get one single data from service API
@@ -92,19 +95,48 @@ async function run() {
 
 
         app.patch('/foodRequests/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { Food_id: id }
+            try {
+                const id = req.params.id;
+                const filter = { Food_id: id };
+                const query = { _id: new ObjectId(id) };
 
-            const updatedData = req.body;
-            console.log(updatedData);
-            const updateDoc = {
-                $set: {
-                    Food_status: updatedData.Food_status
-                },
-            };
-            const result = await foodRequestsCollection.updateOne(filter, updateDoc);
-            res.send(result)
-        })
+                const updatedData = req.body;
+                console.log(updatedData);
+                const updateDoc = {
+                    $set: {
+                        Food_status: updatedData.Food_status,
+                    },
+                };
+
+                const [result1, result2] = await Promise.all([
+                    foodRequestsCollection.updateOne(filter, updateDoc),
+                    availableFoodsCollection.updateOne(query, updateDoc),
+                ]);
+
+                console.log(result1, result2);
+                res.send({ result1, result2 });
+            } catch (error) {
+                console.error('Error in PATCH request:', error);
+                res.status(500).send('Internal Server Error');
+            }
+        });
+        // app.patch('/foodRequests/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const filter = { Food_id: id }
+        //     const query = { _id: new ObjectId(id) }
+
+        //     const updatedData = req.body;
+        //     console.log(updatedData);
+        //     const updateDoc = {
+        //         $set: {
+        //             Food_status: updatedData.Food_status
+        //         },
+        //     };
+        //     const result = await foodRequestsCollection.updateOne(filter, updateDoc);
+        //     const result2 = await availableFoodsCollection.updateOne(query, updateDoc);
+        //     console.log(result, result2)
+        //     res.send(result, result2)
+        // })
 
 
         // request related
@@ -152,7 +184,7 @@ async function run() {
 
 
         // Send a ping to confirm a successful connection
-        // await client.db("admin").command({ ping: 1 });
+        await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
